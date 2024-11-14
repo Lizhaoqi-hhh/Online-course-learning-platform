@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		
+	</head>
+	<body>
+		<div id="app">
+			
+			<template>
+				<el-link icon="el-icon-back" href="manuStu.html">返回</el-link><br/><br/>
+				<el-link icon="el-icon-plus" href="选课.html">去选课</el-link><br/><br/>
+			  
+			  <el-table  :data="courses"  border highlight-current-row @current-change="handleCurrentChange">
+			    <el-table-column  fixed  prop="id" label="课程id"  width="150"></el-table-column>
+			    <el-table-column prop="title"  label="课程名称"  width="200"></el-table-column>
+			    <el-table-column  prop="num"  label="课程节数"  width="200"></el-table-column>
+			    <el-table-column  prop="price"  label="价格（/节）"  width="200"></el-table-column>
+			    <el-table-column  prop="teacher"  label="课程教师"  width="200"></el-table-column>
+			    <el-table-column  prop="info"  label="课程介绍"  width="300"></el-table-column>
+			   <el-table-column   label="操作"   width="172">  
+			     
+				 <template slot-scope="scope">  
+
+				   <el-popconfirm :title="`确定取消学习'${scope.row.title}'？`" @confirm="delCourse(scope.row.id)">
+						<el-button circle icon="el-icon-delete" slot="reference" ></el-button>
+				   </el-popconfirm>
+				   
+			     </template>  
+			   </el-table-column>
+			  </el-table>
+			</template>
+		
+		
+		</div>
+		<script src="js/axios.min.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					courses: [],
+					select:[],
+					title:'',
+					message:'',
+					currentRow: null
+				},
+				methods: {
+					handleCurrentChange(val) {
+						this.currentRow = val;
+					},
+					loadCourses() {
+						axios.get('http://localhost:9000/choose/list').then(res => {
+							this.$message(res.data.msg);
+							if (res.data.isOk){
+								
+								this.courses = res.data.courses;
+								 this.select = [...this.courses];
+							}
+						})
+					},
+					delCourse(id) {
+						axios.get('http://localhost:9000/choose/del', {
+							params: {  
+							     id
+							}  
+						}).then(res => {
+							alert(res.data.msg);
+							this.loadCourses()
+						})
+					},
+					
+				},
+				created() {
+					this.loadCourses()
+				}		
+			})
+		</script>
+	</body>
+</html>

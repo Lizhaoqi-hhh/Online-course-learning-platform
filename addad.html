@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+		    /* 简单的样式来美化页面 */  
+		/* 使用Flexbox使容器居中 */  		
+		    body, html {  		
+		        height: 100%;  
+		        margin: 0;  		
+		        display: flex;  		
+		        justify-content: center;  		
+		        align-items: center;  		
+		        background-color: #f5f5f5; /* 可选的背景色 */  		
+		    }  	
+		    .container {  	
+		        width: 300px;  		
+		        padding: 20px;  		
+		        border: 1px solid #ccc;  		
+		        border-radius: 5px; 
+				background-color: #fffb0012;
+		    }  		
+		    label {  		
+		        display: block;  		
+		        margin-bottom: 10px;  		
+		    }  		
+		    input[type="text"]{
+				width: 270px;
+			}		
+		    input[type="password"]{
+				width: 270px;
+			}
+		
+		    select {  		
+		        width: 270px;  		
+		        padding: 5px;  		
+		        border: 1px solid #ccc;  
+		        border-radius: 3px;  
+		    }
+		    .submit-btn {  		
+		        margin-top: 20px;
+				font-size: 15px;
+				background-color: #ffe30069;
+		    }
+			.submit-btn1 {
+				margin-top: 20px;
+				float: right;
+				font-size: 15px;
+				background-color: #ffe30069;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="js/axios.min.js"></script>
+		<script src="js/vue.js"></script>
+		<div id="app" class="container">  
+		    <h2>注册管理员</h2>  
+		    <form id="registerForm" @submit.prevent="addAdmin" method="post">  
+		        <label for="id">账号:</label>  
+		        <input type="text" id="id" name="id" v-model="adminForm.id" required><br>  
+		  
+				<label for="pwd">密码:</label>  
+		        <input type="password" id="pwd" name="pwd" v-model="adminForm.pwd" required><br>
+				
+		        <button type="submit"  class="submit-btn">注册</button>
+				  <button  class="submit-btn1" @click.prevent="quxiao">取消</button>
+		    </form>  
+		</div>  
+		
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					adminForm: {
+						id:'',
+						pwd:''
+					},
+					rules: {
+							  id: [
+							    { required: true, message: '请输入学号', trigger: 'blur' }
+							  ],
+					          
+							  pwd:[
+								{ required: true,message: '请输入密码', trigger: 'blur' }
+								] 
+					}
+				},
+				methods: {
+					addAdmin() {
+						let fd = new FormData();
+						fd.append('id', this.adminForm.id);
+						axios.post('http://localhost:9000/admin/selectid', fd).then(res => {
+							if (res.data.isOk) {
+								alert("此管理员已存在");
+							}
+							else{
+								let fd1 = new FormData();
+								fd1.append('id', this.adminForm.id);
+								fd1.append('pwd', this.adminForm.pwd);
+								axios.post('http://localhost:9000/admin/add', fd1).then(res => {
+									alert(res.data.msg);
+									if (res.data.isOk) {
+										location.href = 'Loginad.html';
+									}
+								})
+							}
+						})
+						
+					},
+					quxiao(){
+						location.href = 'LoginAd.html';
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

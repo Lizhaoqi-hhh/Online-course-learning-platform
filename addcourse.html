@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		
+		<style>
+		    /* 简单的样式来美化页面 */  
+		/* 使用Flexbox使容器居中 */  		
+		    body, html {  		
+		        height: 100%;  
+		        margin: 0;  		
+		        display: flex;  		
+		        justify-content: center;  		
+		        align-items: center;  		
+		        background-color: #f5f5f5; /* 可选的背景色 */  		
+		    }  	
+		    .container {  	
+		        width: 300px;  		
+		        padding: 20px;  		
+		        border: 1px solid #ccc;  		
+		        border-radius: 5px;
+				background-color: #fffb0012;
+		    }  		
+		    label {  		
+		        display: block;  		
+		        margin-bottom: 10px;  		
+		    }  		
+		    input[type="text"]{
+				width: 250px;
+			}	
+			
+			textarea {  
+			    width: 270px;  
+			} 
+			
+		    .submit-btn {  		
+		        margin-top: 20px;
+				font-size: 15px;
+				background-color: #ffe30069;		
+		    }  
+			.submit-btn1 {
+			    margin-top: 20px;
+				float: right;
+				font-size: 15px;
+				background-color: #ffe30069;
+			}
+			
+		</style> 		
+		
+	</head>
+	<body>
+		<script src="js/axios.min.js"></script>
+		<script src="js/vue.js"></script>
+		<div id="app" class="container">  
+		    <h2>添加新课程</h2>  
+		    <form id="courseForm" @submit.prevent="addCourse" method="post">  
+		        <label for="id">课程ID:</label>  
+		        <input type="text" id="id" name="id" v-model="courseForm.id" required><br>  
+		  
+		        <label for="title">课程名称:</label>  
+		        <input type="text"  id="title" name="title" v-model="courseForm.title" required><br>  
+				
+				<label for="num">课程节数:</label>  
+		        <input type="text"  id="num" name="num" v-model="courseForm.num" required><br>
+				
+				<label for="price">价格（/节）:</label>
+				<input type="text"  id="price" name="price" v-model="courseForm.price" required><br>
+				
+				<label for="teacher">课程老师:</label>
+				<input type="text"  id="teacher" name="teacher" v-model="courseForm.teacher" required><br> 
+		  
+		        <label for="info">课程介绍:</label>  
+		        <textarea rows="3" id="info" name="info" v-model="courseForm.info" required></textarea><br>  
+		  
+		        <button type="submit" class="submit-btn">添加</button> 
+				 <button  class="submit-btn1" @click.prevent="quxiao">取消</button>
+		    </form>  
+		</div>  
+	
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					courseForm: {
+						id:null,
+						title:'',
+						num:null,
+						price:'',
+						teacher:'',
+						info:''
+					},
+					rules: {
+							  id: [
+							    { required: true, message: '请输入课程id', trigger: 'blur' }
+							  ],
+					          title: [
+					            { required: true, message: '请输入课程名称', trigger: 'blur' }
+					          ],
+							  num: [
+							    { required: true, message: '请输入课程节数', trigger: 'blur' }
+							  ],
+							  price:[
+								{ required: true,message: '请输入价格（/节）', trigger: 'blur' }
+								],
+							  teacher: [  
+								{ required: true, message: '请输入课程老师', trigger: 'blur' }   
+							    ],
+							  info:[
+								{ required: true,message: '请输入课程介绍', trigger: 'blur' }
+								]
+					}
+				},
+				methods: {
+					addCourse() {
+						let fd = new FormData();
+						fd.append('title', this.courseForm.title);
+						axios.post('http://localhost:9000/course/select', fd).then(res => {
+							if (res.data.isOk) {
+								alert("此课程已存在");
+							}
+							else{
+								this.courseForm.id = parseInt(this.courseForm.id);
+								this.courseForm.num = parseInt(this.courseForm.num);
+								let fd1 = new FormData();
+								
+								fd1.append('id', this.courseForm.id);
+								fd1.append('title', this.courseForm.title);
+								fd1.append('num', this.courseForm.num);
+								fd1.append('price', this.courseForm.price);
+								fd1.append('teacher', this.courseForm.teacher);
+								fd1.append('info', this.courseForm.info);
+								axios.post('http://localhost:9000/course/add', fd1).then(res => {
+									if (res.data.isOk) {
+										alert(res.data.msg);
+										location.href = 'courseList.html';
+									}
+								})
+							}
+						})
+						
+					},
+					quxiao(){
+						location.href = 'courseList.html';
+					}
+				}
+			})
+		</script>
+		
+	</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.center {
+				text-align: center;
+			}
+			.el-container>* {
+				margin-right: 50px;
+				/* 调整组件之间的间距 */
+			}
+			*/ .el-container>*:last-child {
+				margin-right: 50px;
+				/* 最后一个组件不留间距 */
+			}
+			el-button {
+				background-color: darkblue;
+				color: #fff;
+			}
+			button:hover {
+				background-color: lightblue;
+				color: #000;
+			}
+		</style>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+			<el-container>
+				<el-header></el-header>
+				<el-main>
+					<el-col >
+						<el-container>
+							<el-link icon="el-icon-back" href="manuAd.html">返回</el-link><br/><br/><br/>
+							<el-link icon="el-icon-edit" href="addcourse.html">添加课程</el-link>
+							
+							<el-button type="primary" plain size="mini" icon="el-icon-search"
+							style="font-size: 15px; color: black;" @click="search()" ></el-button>
+							<el-dialog title="搜索" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
+								<el-form label-width="80px">
+								  <el-form-item label="课程ID">
+									<el-input v-model="id"></el-input>
+								  </el-form-item>
+								  <el-form-item label="课程名称">
+									<el-input v-model="title"></el-input>
+								  </el-form-item>
+								  <el-form-item label="课程节数">
+									<el-input v-model="num"></el-input>
+								  </el-form-item>
+								  <el-form-item label="价格">
+									<el-input v-model="price"></el-input>
+								  </el-form-item>
+								  <el-form-item label="课程教师">
+									<el-input v-model="teacher"></el-input>
+								  </el-form-item>
+								  <el-form-item label="课程介绍">
+								  	<el-input v-model="info"></el-input>
+								  </el-form-item>
+
+								</el-form>
+								<div slot="footer">
+								   <el-button type="primary"
+									@click="dialogVisible1 = false">确定</el-button>
+								</div>
+							</el-dialog>
+
+							<el-col :span="5">
+								<el-input v-model="title" placeholder="请输入内容" clearable size='mini' :rows="6"
+									maxlength="30" show-word-limit style="width:100%"></el-input>
+							</el-col>
+						</el-container>
+						
+						<el-table :data="courses" border style="width: 100%">
+
+							<el-table-column fixed prop="id" label="课程id" width="150"></el-table-column>
+							<el-table-column prop="title" label="课程名称" width="180"></el-table-column>
+							<el-table-column prop="num" label="课程节数" width="180"></el-table-column>
+							<el-table-column prop="price" label="价格" width="180"></el-table-column>
+							<el-table-column prop="teacher" label="课程教师" width="180"></el-table-column>
+							<el-table-column prop="info" label="课程介绍" width="282"></el-table-column>
+
+							<el-table-column label="操作" width="180">
+								<template slot-scope="scope">
+
+									<el-popconfirm :title="`确定删除'${scope.row.title}'？`"
+										@confirm="delcourse(scope.row.id)">
+										<el-button circle icon="el-icon-delete" slot="reference"></el-button>	
+									</el-popconfirm>
+
+									<el-button @click=" openDialog(scope.row)">修改</el-button>
+									<el-dialog title="修改" :visible.sync="dialogVisible" width="30%"
+										:before-close="handleClose">
+										<form>
+											<el-form label-width="80px">
+												<el-form-item label="课程ID">
+													<el-input v-model="id"></el-input>
+												</el-form-item>
+												<el-form-item label="课程名称">
+													<el-input v-model="title"></el-input>
+												</el-form-item>
+												<el-form-item label="课程节数">
+													<el-input v-model="num"></el-input>
+												</el-form-item>
+												<el-form-item label="价格">
+													<el-input v-model="price"></el-input>
+												</el-form-item>
+												<el-form-item label="课程教师">
+													<el-input v-model="teacher"></el-input>
+												</el-form-item>
+												<el-form-item label="课程介绍">
+													<el-input v-model="info"></el-input>
+												</el-form-item>
+												<el-form-item>
+													<el-button type="primary" @click="saveChanges">提交</el-button>
+													<el-button type="primary"
+														@click="dialogVisible = false">取消</el-button>
+												</el-form-item>
+											</el-form>
+										</form>
+									</el-dialog>
+
+								</template>
+							</el-table-column>
+
+						</el-table>
+						</el-color>
+				</el-main>
+			</el-container>
+
+
+
+
+		</div>
+
+		<script src="./js/axios.min.js"></script>
+		<script src="./js/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					courses:[],
+					id:null,
+					title:'',
+					num:null,
+					price:'',
+					teacher:'',
+					info:'',
+					message:'',
+					dialogVisible: false,
+					dialogVisible1: false,
+				},
+				methods: {
+					loadcourses() {
+						axios.get('http://localhost:9000/course/list').then(res => {
+							this.$message(res.data.msg);
+							if (res.data.isOk) {
+								this.courses = res.data.courses;
+							}
+						})
+					},
+					delcourse(id) {
+						axios.get('http://localhost:9000/course/del', {
+							params: {
+								id
+							}
+						}).then(res => {
+							alert(res.data.msg);
+							this.loadcourses()
+						});
+						axios.get('http://localhost:9000/choose/del', {
+							params: {
+								id
+							}
+						}).then(res => {
+							
+						});
+					},
+					handleClose(done) {
+						this.$confirm('确认关闭？')
+							.then(_ => {
+								done();
+							})
+							.catch(_ => {});
+					},
+					openDialog(row) {
+						this.id = row.id;
+						this.title = row.title;
+						this.num = row.num;
+						this.price = row.price;
+						this.teacher = row.teacher;
+						this.info = row.info;// 将 row.title 写入到 el-input 中
+						this.dialogVisible = true;
+					},
+					saveChanges() 	{
+						let fd1 = new FormData();
+						fd1.append('title', this.title);
+						axios.post('http://localhost:9000/course/select', fd1).then(res => {
+							if (res.data.isOk) {
+								alert("此课程已存在");
+							}
+							else{
+								const id = this.id;
+								const title = this.title;
+								const num = this.num;
+								const price = this.price;
+								const teacher = this.teacher;
+								const info = this.info;
+								let fd = new FormData();
+								fd.append('id', id);
+								fd.append('title', title);
+								fd.append('num', num);
+								fd.append('price', price);
+								fd.append('teacher', teacher);
+								fd.append('info', info);
+								axios.post('http://localhost:9000/course/update', fd).then(res => {
+									if (res.data.isOk) {
+										alert(res.data.msg);
+										location.href = 'courseList.html';
+									}
+								})
+							}
+						})
+					},
+					search() {
+						const title = this.title;
+						let fd = new FormData();
+						fd.append('title', title);
+						axios.post('http://localhost:9000/course/select', fd).then(res => {
+							if (res.data.isOk) {
+								alert(res.data.msg);
+								this.id = res.data.courses.id;
+								this.title = res.data.courses.title;
+								this.num = res.data.courses.num;
+								this.price = res.data.courses.price;
+								this.teacher = res.data.courses.teacher;
+								this.info = res.data.courses.info;
+								this.dialogVisible1 = true;
+							}
+							else{
+								alert(res.data.msg);
+							}
+						})
+					}
+				},
+				created() {
+					this.loadcourses();
+				}
+			})
+		</script>
+	</body>
+</html>

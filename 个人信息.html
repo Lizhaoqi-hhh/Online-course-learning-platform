@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+			<div style="margin: 20px;"></div>
+			
+			<el-form :model="students">
+			  <el-form-item label="ID"><el-input v-model="id" readonly></el-input></el-form-item>
+			  <el-form-item label="姓名"><el-input v-model="name"></el-input></el-form-item>
+			  <el-form-item label="密码"><el-input v-model="pwd"></el-input></el-form-item>
+			  <el-form-item label="年级"><el-input v-model="grade"></el-input></el-form-item>
+			  <el-form-item label="手机号"><el-input v-model="phone"></el-input></el-form-item>
+			</el-form>
+			
+			<div slot="footer">
+			   <el-button type="primary" @click="update">修改</el-button>
+			   <el-button  @click="goback">返回</el-button>
+			</div>
+		</div>
+		<script src="./js/axios.min.js"></script>
+		<script src="./js/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		
+		<script>
+			axios.defaults.withCredentials = true;
+			const sid = localStorage.getItem('stuid');
+			new Vue({
+				el: '#app',
+				data:{
+					students:[],
+					id:'',
+					name:'',
+					pwd:'',
+					grade:'',
+					phone:'',
+					message:'',
+				},
+				methods:{
+					update() {
+						const id = this.id;
+						const name = this.name;
+						const pwd = this.pwd;
+						const grade = this.grade;
+						const phone = this.phone;
+						let fd = new FormData();
+						fd.append('id', id);
+						fd.append('name', name);
+						fd.append('pwd', pwd);
+						fd.append('grade', grade);
+						fd.append('phone', phone);
+						axios.post('http://localhost:9000/student/update', fd).then(res => {
+							if (res.data.isOk) {
+								alert(res.data.msg);
+								location.href = '个人信息.html';
+							}
+						})
+					},
+					load(){
+						let fd = new FormData();
+						fd.append('id', sid);
+						axios.post('http://localhost:9000/student/selectid', fd).then(res => {
+							this.$message(res.data.msg);
+							if (res.data.isOk) {
+								this.id = res.data.students.id;
+								this.name = res.data.students.name;
+								this.pwd = res.data.students.pwd;
+								this.grade = res.data.students.grade;
+								this.phone = res.data.students.phone;
+							}
+						})
+					},
+					goback(){
+						location.href = 'manuStu.html';
+					}
+				},
+				created() {
+					this.load();
+				}
+			})
+		</script>
+		
+	</body>
+</html>

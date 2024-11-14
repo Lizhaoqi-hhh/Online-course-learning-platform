@@ -1,0 +1,111 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <meta charset="utf-8">  
+    <title></title>  
+    <style scoped>  
+            body, html {
+				height: 100%;
+				margin: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+	
+			#app {
+				border: 1px solid #ccc; 
+				padding: 20px; 
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				box-sizing: border-box;
+				border-top-width: 2px;
+				  border-left-width: 2px;
+				  border-bottom-width: 2px;
+				  border-right-width: 2px;
+				  border: 1px solid #0070ff;
+				  padding: 30px;
+			}
+			#app > h1:nth-child(1) {
+			  font-size: 25px;
+			}
+			#app > h2:nth-child(1) {
+			  font-size: 10px;
+			}
+			.identity-selection {
+				text-align: center; 
+				margin-bottom: 20px; 
+			}
+	
+			.el-radio {
+				margin: 10px; 
+			}
+			
+			.el-radio-group {
+				
+				flex-direction: column;
+				display: inline-flex;
+				border-radius: 4px; /* 添加该属性设置，确保所有边都有边框 */
+			}
+	
+			.el-button {
+				margin-top: 20px;
+				font-size: 15px;
+				  padding-left: 15px;
+				  padding-right: 15px;
+				  padding-top: 8px;
+				  padding-bottom: 8px;
+				  color:#FFF;
+				  background-color:#ffaa00a3;
+				  border-color:#fff;
+			}
+			label.el-radio:nth-child(2) > span:nth-child(2) {
+			  font-size: 16px;
+			  line-height: 60px;
+			  letter-spacing: 0.6em;
+			}
+			label.el-radio:nth-child(1) > span:nth-child(2) {
+			  font-size: 16px;
+			  line-height: 60px;
+			  letter-spacing: 0.057em;
+			}
+        </style>   
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">  
+</head>  
+<body>  
+    <div id="app" class="identity-selection">  
+        <h1>欢迎来到在线课程学习平台</h1> 
+		 <h2>请选择您的身份</h2>
+        <el-radio-group v-model="selectedIdentity" class="el-radio-group">  
+            <el-radio label="admin">管理员</el-radio>  
+            <el-radio label="student">学生</el-radio>  
+        </el-radio-group>  
+        <el-button  @click="handleConfirm">确认</el-button>  
+    </div>  
+  
+    <script src="./js/axios.min.js"></script>  
+    <script src="./js/vue.js"></script>  
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>  
+    <script>  
+        axios.defaults.withCredentials = true;  
+        new Vue({  
+            el: '#app',  
+            data: {  
+                selectedIdentity: '',  
+                message: ''  
+            },  
+            methods: {  
+                handleConfirm() {  
+                    if (this.selectedIdentity === 'admin') {  
+                        location.href = 'Loginad.html';  
+                    } else if (this.selectedIdentity === 'student') {  
+                        location.href = 'Loginstu.html';  
+                    } else {  
+                        alert('请选择您的身份！');
+                    }  
+                }  
+            }  
+        })  
+    </script>  
+</body>  
+</html>

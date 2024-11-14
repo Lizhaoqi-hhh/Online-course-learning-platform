@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+			<el-link icon="el-icon-back" href="manuStu.html">返回</el-link><br/><br/>
+			
+			<el-button type="primary" plain size="mini" icon="el-icon-search"
+			style="font-size: 15px; color: black;" @click="search()" ></el-button>
+			<el-dialog title="查询" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
+				<el-form label-width="80px">
+				  <el-form-item label="课程ID">
+					<el-input v-model="id"></el-input>
+				  </el-form-item>
+				  <el-form-item label="课程名称">
+					<el-input v-model="title"></el-input>
+				  </el-form-item>
+				  <el-form-item label="课程节数">
+					<el-input v-model="num"></el-input>
+				  </el-form-item>
+				  <el-form-item label="价格">
+					<el-input v-model="price"></el-input>
+				  </el-form-item>
+				  <el-form-item label="课程教师">
+					<el-input v-model="teacher"></el-input>
+				  </el-form-item>
+				  <el-form-item label="课程介绍">
+				  	<el-input v-model="info"></el-input>
+				  </el-form-item>
+				  </el-form>
+			
+			
+			<div slot="footer">
+				   	
+					<el-button type="primary" @click="dialogVisible1 = false">确定</el-button>
+			<el-button circle icon="el-icon-circle-plus-outline"  @click="add()"></el-button>
+						
+					
+				</div>
+				
+				
+				
+			</el-dialog>
+			<el-col :span="5">
+				<el-input v-model="title" placeholder="请输入课程名称" clearable size='mini' :rows="6"
+					maxlength="30" show-word-limit style="width:100%"></el-input>
+			</el-col>
+			
+			
+			<template>
+			  <el-table  :data="courses"  border highlight-current-row @current-change="handleCurrentChange">
+			    <el-table-column  fixed  prop="id" label="课程id"  width="180"></el-table-column>
+			    <el-table-column prop="title"  label="课程名称"  width="180"></el-table-column>
+			    <el-table-column  prop="num"  label="课程节数"  width="180"></el-table-column>
+			    <el-table-column  prop="price"  label="价格（/节）"  width="180"></el-table-column>
+			    <el-table-column  prop="teacher"  label="课程教师"  width="180"></el-table-column>
+			    <el-table-column  prop="info"  label="课程介绍"  width="320"></el-table-column>
+			   <el-table-column   label="操作"   width="202">  
+			     <template slot-scope="scope">  
+
+				   <el-popconfirm :title="`确认学习'${scope.row.title}课程'？`" @confirm="addCourse(scope.row)">
+						<el-button circle icon="el-icon-circle-plus-outline" slot="reference" ></el-button>
+				   </el-popconfirm>
+				   
+			     </template>  
+			   </el-table-column>
+			  </el-table>
+			</template>
+		</div>
+		
+		<script src="js/axios.min.js"></script>
+		<script src="js/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					courses: [],
+					select:[],
+					id:null,
+					title:'',
+					num:null,
+					price:'',
+					teacher:'',
+					info:'',
+					message:'',
+					currentRow: null,
+					dialogVisible1: false,
+				},
+				methods: {
+					handleCurrentChange(val) {
+						this.currentRow = val;
+					},
+					loadCourses() {
+						axios.get('http://localhost:9000/course/list').then(res => {
+							this.$message(res.data.msg);
+							if (res.data.isOk){
+								
+								this.courses = res.data.courses;
+								 this.select = [...this.courses];
+							}
+						})
+					},
+					addCourse(rowData) {
+						
+						let fd = new FormData();
+						fd.append('title', rowData.title);
+						axios.post('http://localhost:9000/choose/select1', fd).then(res => {
+							if (res.data.isOk) {
+								alert("此课程已选择");
+							}else{
+								let fd1 = new FormData();
+								rowData.id = parseInt(rowData.id);
+								rowData.num = parseInt(rowData.num);
+								fd1.append('id', rowData.id);
+								fd1.append('title', rowData.title);
+								fd1.append('num', rowData.num);
+								fd1.append('price', rowData.price);
+								fd1.append('teacher', rowData.teacher);
+								fd1.append('info', rowData.info);
+								axios.post('http://localhost:9000/choose/add', fd1).then(res => {
+									if (res.data.isOk) {
+										alert(res.data.msg);
+									}
+								})
+							}
+						})
+						
+						
+					},
+					
+					search() {
+						const title = this.title;
+						let fd = new FormData();
+						fd.append('title', title);
+						axios.post('http://localhost:9000/choose/select', fd).then(res => {
+							if (res.data.isOk) {
+								alert(res.data.msg);
+								this.id = res.data.courses.id;
+								this.title = res.data.courses.title;
+								this.num = res.data.courses.num;
+								this.price = res.data.courses.price;
+								this.teacher = res.data.courses.teacher;
+								this.info = res.data.courses.info;
+								this.dialogVisible1 = true;
+							}
+							else{
+								alert(res.data.msg);
+							}
+						})
+					},
+					add(){
+						const title = this.title;
+						let fd = new FormData();
+						fd.append('title', title);
+						axios.post('http://localhost:9000/choose/select', fd).then(res => {
+							if (res.data.isOk) {
+								
+								this.id = res.data.courses.id;
+								this.title = res.data.courses.title;
+								this.num = res.data.courses.num;
+								this.price = res.data.courses.price;
+								this.teacher = res.data.courses.teacher;
+								this.info = res.data.courses.info;
+								this.dialogVisible1 = true;
+							}
+							else{
+								alert(res.data.msg);
+							}
+						})
+						
+						let fd1 = new FormData();
+						fd1.append('id', this.id);
+						fd1.append('title', this.title);
+						fd1.append('num', this.num);
+						fd1.append('price', this.price);
+						fd1.append('teacher', this.teacher);
+						fd1.append('info', this.info);
+						axios.post('http://localhost:9000/choose/add', fd1).then(res => {
+							if (res.data.isOk) {
+								alert(res.data.msg);
+								
+							}
+						})
+					},
+					  handleClose(done) {
+					  	this.$confirm('确认关闭？')
+					  		.then(_ => {
+					  			done();
+					  		})
+					  		.catch(_ => {});
+					  },
+				},
+				
+				created() {
+					this.loadCourses()
+				}		
+			})
+		</script>
+	</body>
+</html>
